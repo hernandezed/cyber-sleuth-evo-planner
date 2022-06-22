@@ -38,6 +38,7 @@ class DataConfig(objectMapper: ObjectMapper) {
                     hashSetOf(d.id) + d.evolveFrom.map { p -> digimonByName[p]!!.id }.toSet(),
                     d.evolveTo.map { n -> digimonByName[n.to]!!.id }.toSet()))
         }
+        println()
     }
 
     @Bean

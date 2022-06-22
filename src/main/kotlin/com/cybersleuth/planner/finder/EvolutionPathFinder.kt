@@ -17,9 +17,6 @@ class EvolutionPathFinder {
             d.attacks.forEach { a ->
                 run {
                     if (skillToDigis[a] == null) {
-                        if (a == 6 || a == 120) {
-                            println()
-                        }
                         (skillToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a] = HashMap()
                     }
                     (skillToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a]!![d.id] = true
@@ -28,12 +25,12 @@ class EvolutionPathFinder {
         }
     }
 
-    fun findShortestPath(source: Int, target: Int, wantedAttacks: Set<Int>): List<Int> {
-        var path: MutableList<Int> = mutableListOf(source)
-        var skillPath: MutableList<Int> = mutableListOf()
-        var skillContext: MutableMap<Int, Boolean> = HashMap()
+    fun findShortestPath(source: Int, target: Int?, wantedAttacks: Set<Int>): List<Int> {
+        val path: MutableList<Int> = mutableListOf(source)
+        val skillPath: MutableList<Int> = mutableListOf()
+        val skillContext: MutableMap<Int, Boolean> = HashMap()
         wantedAttacks.associateWithTo(skillContext) { false }
-        var shortestPath: MutableList<Int> = mutableListOf()
+        var shortestPath: MutableList<Int>
         try {
             if (skillContext.isNotEmpty()) {
                 skillContext.keys.forEach { id ->
@@ -44,25 +41,24 @@ class EvolutionPathFinder {
                         }
                     }
                 }
-                var fullSkillPaths: MutableList<MutableList<Int>> = LinkedList<MutableList<Int>>()
-                var posiblePaths = permutations(skillPath)
-                for (i in 0 until posiblePaths.size) {
-                    var currentSkills = posiblePaths[i]
+                val fullSkillPaths: MutableList<MutableList<Int>> = LinkedList<MutableList<Int>>()
+                val posiblePaths = permutations(skillPath)
+                for (posiblePath in posiblePaths) {
                     var currentSource = source
                     var currentSkillPath = mutableListOf<Int>()
-                    var coveredSkills = mutableMapOf<Int, Boolean>()
-                    for (j in 0 until currentSkills.size) {
-                        if (!coveredSkills.getOrDefault(currentSkills[j])) {
-                            var skillNodePath = findClosestSkillHolderPath(currentSource, currentSkills[j], null, skillContext)
+                    val coveredSkills = mutableMapOf<Int, Boolean>()
+                    for (elementPath in posiblePath) {
+                        if (!coveredSkills.getOrDefault(elementPath)) {
+                            val skillNodePath = findClosestSkillHolderPath(currentSource, elementPath, null, skillContext)
                             currentSource = skillNodePath[skillNodePath.size - 1]
-                            var moves = digimonData[currentSource]!!.attacks
-                            for (k in 0 until moves.size) {
-                                coveredSkills[moves.elementAt(k)] = true
+                            val moves = digimonData[currentSource]!!.attacks
+                            for (move in moves) {
+                                coveredSkills[move] = true
                             }
                             currentSkillPath = (currentSkillPath + skillNodePath.slice(0 until skillNodePath.size - 1)).toMutableList()
                         }
                     }
-                    if (target != -1) {
+                    if (target != null) {
                         currentSkillPath = (currentSkillPath + findRoute(listOf(currentSource, target), null, mapOf())).toMutableList()
                     } else {
                         currentSkillPath.add(currentSource)
@@ -75,7 +71,7 @@ class EvolutionPathFinder {
                         shortestPath = fullSkillPaths[i]
                     }
                 }
-            } else if (target != -1) {
+            } else if (target != null) {
                 shortestPath = path
                 shortestPath.add(target)
                 shortestPath = findRoute(shortestPath, null, mapOf())
@@ -146,11 +142,6 @@ class EvolutionPathFinder {
         }
         pathToSource[target]!!.add(target!!)
         return pathToSource[target]!!
-    }
-
-
-    fun List<Int>.permute(input: List<Int>) {
-        permutations(input)
     }
 
     private fun permutations(input: List<Int>): List<List<Int>> {
