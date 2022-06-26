@@ -1,5 +1,7 @@
 package com.cybersleuth.planner.finder
 
+import com.cybersleuth.planner.domain.Attack
+import com.cybersleuth.planner.domain.Digimon
 import com.cybersleuth.planner.finder.model.DigimonData
 import org.springframework.stereotype.Component
 import java.util.*
@@ -9,8 +11,12 @@ import kotlin.collections.HashMap
 class EvolutionPathFinder {
     val digimonData: Map<Int, DigimonData>
     val skillToDigis: Map<Int, MutableMap<Int, Boolean>>
+    val digimonsData: Map<String, Digimon>
+    val attacksData: Map<String, Attack>
 
-    constructor(digimonData: Map<Int, DigimonData>) {
+    constructor(digimonData: Map<Int, DigimonData>, digimonsData: Map<String, Digimon>, attacksData: Map<String, Attack>) {
+        this.digimonsData = digimonsData
+        this.attacksData = attacksData
         this.digimonData = digimonData
         skillToDigis = HashMap()
         this.digimonData.values.forEach { d ->

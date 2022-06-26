@@ -13,6 +13,6 @@ class Digimon(
         val skill: Skill,
         val evolveFrom: List<String>,
         val evolveTo: List<Evolution>,
-        val attacks: List<Attack>
+        val attacks: Set<LearnedAttack>
 ) {
 }

@@ -1,6 +1,6 @@
-package com.cybersleuth.planner
+package com.cybersleuth.planner.finder
 
-import com.cybersleuth.planner.finder.EvolutionPathFinder
+import com.cybersleuth.planner.CyberSleuthPlannerApplicationTests
 import com.cybersleuth.planner.finder.model.DigimonData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     fun findShortestPath_directEvolutionWithAttackFromDirectEvolution_returnPathWithSizeTwo() {
         var source = 1
         var target = 10
-        val result = instance.findShortestPath(source, target, setOf(5))
+        val result = instance.findShortestPath(source, target, setOf(13))
         assertThat(result).hasSize(2)
         assertThat(result.map { digimonData[it]!!.name })
                 .containsExactlyElementsOf(mutableListOf("Kuramon", "Tsumemon"))
@@ -38,11 +38,17 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     fun findShortestPath_directEvolutionWithAttackFromOtherDigimon_returnPathWithSizeEight() {
         var source = 1
         var target = 10
-        val result = instance.findShortestPath(source, target, setOf(30))
+        val result = instance.findShortestPath(source, target, setOf(83))
         assertThat(result).hasSize(8)
         assertThat(result.map { digimonData[it]!!.name })
-                .containsExactlyElementsOf(mutableListOf("Kuramon", "Tsumemon", "Agumon (Blk)", "Monochromon", "Hackmon", "PlatinumSukamon",
-                        "Keramon", "Tsumemon"))
+                .containsExactlyElementsOf(mutableListOf("Kuramon",
+                        "Tsumemon",
+                        "Agumon (Blk)",
+                        "Growlmon",
+                        "WarGrowlmon",
+                        "Growlmon",
+                        "Agumon (Blk)",
+                        "Tsumemon"))
     }
 
     @Test
@@ -68,9 +74,9 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
         var source = 1
         var target = null
         val result = instance.findShortestPath(source, target, setOf(20))
-        assertThat(result).hasSize(4)
+        assertThat(result).hasSize(5)
         assertThat(result.map { digimonData[it]!!.name })
-                .containsExactlyElementsOf(mutableListOf("Kuramon", "Pagumon", "Lopmon", "Gargomon"))
+                .containsExactlyElementsOf(mutableListOf("Kuramon", "Pagumon", "Lopmon", "MudFrigimon", "Palmon"))
     }
 
 
@@ -86,12 +92,25 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     fun findShortestPath_withMultipleAttacks_returnPathSize() {
         var source = 1
         var target = 300
-        val result = instance.findShortestPath(source, target, setOf(20, 50, 25, 10, 100, 40, 60))
+        val result = instance.findShortestPath(source, target, setOf(20, 50, 25, 10, 100, 40))
         assertThat(result).hasSize(16)
         assertThat(result.map { digimonData[it]!!.name })
-                .containsExactlyElementsOf(mutableListOf("Kuramon", "Pagumon", "Lopmon", "Gargomon", "Gaomon", "Ogremon",
-                        "Gaomon", "Togemon", "Palmon", "Vegiemon", "Betamon", "Bukamon", "Syakomon", "Ikkakumon",
-                        "MachGaogamon", "Merukimon"))
+                .containsExactlyElementsOf(mutableListOf("Kuramon",
+                        "Pagumon",
+                        "Chuumon",
+                        "Raremon",
+                        "Gabumon (Blk)",
+                        "Reppamon",
+                        "Kudamon",
+                        "Wanyamon",
+                        "Gaomon",
+                        "Togemon",
+                        "Lalamon",
+                        "Togemon",
+                        "Palmon",
+                        "Togemon",
+                        "MachGaogamon",
+                        "Merukimon"))
     }
 
     @Test
