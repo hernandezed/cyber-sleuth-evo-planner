@@ -7,7 +7,7 @@ class Evolution(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         val id: Int?,
-        @OneToOne
+        @ManyToOne
         val from: Digimon,
         @OneToOne
         val to: Digimon,

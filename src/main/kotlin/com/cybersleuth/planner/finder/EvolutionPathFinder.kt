@@ -1,37 +1,40 @@
 package com.cybersleuth.planner.finder
 
+import com.cybersleuth.planner.business.usecase.FindAllDigimonsUseCase
+import com.cybersleuth.planner.database.repositories.DigimonRepository
 import com.cybersleuth.planner.domain.Attack
 import com.cybersleuth.planner.domain.Digimon
 import com.cybersleuth.planner.finder.model.DigimonData
 import org.springframework.stereotype.Component
 import java.util.*
+import javax.transaction.Transactional
 import kotlin.collections.HashMap
 
 @Component
 class EvolutionPathFinder {
     val digimonData: Map<Int, DigimonData>
-    val skillToDigis: Map<Int, MutableMap<Int, Boolean>>
-    val digimonsData: Map<String, Digimon>
-    val attacksData: Map<String, Attack>
+    val attackToDigis: Map<Int, MutableMap<Int, Boolean>>
+    val findAllDigimonsUseCase: FindAllDigimonsUseCase
 
-    constructor(digimonData: Map<Int, DigimonData>, digimonsData: Map<String, Digimon>, attacksData: Map<String, Attack>) {
-        this.digimonsData = digimonsData
-        this.attacksData = attacksData
+    constructor(digimonData: Map<Int, DigimonData>, findAllDigimonsUseCase: FindAllDigimonsUseCase) {
         this.digimonData = digimonData
-        skillToDigis = HashMap()
+        attackToDigis = HashMap()
         this.digimonData.values.forEach { d ->
             d.attacks.forEach { a ->
                 run {
-                    if (skillToDigis[a] == null) {
-                        (skillToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a] = HashMap()
+                    if (attackToDigis[a] == null) {
+                        (attackToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a] = HashMap()
                     }
-                    (skillToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a]!![d.id] = true
+                    (attackToDigis as HashMap<Int, MutableMap<Int, Boolean>>)[a]!![d.id] = true
                 }
             }
         }
+        this.findAllDigimonsUseCase = findAllDigimonsUseCase
     }
 
+    @Transactional
     fun findShortestPath(source: Int, target: Int?, wantedAttacks: Set<Int>): List<Int> {
+        val digimons: Map<Int, com.cybersleuth.planner.database.Digimon> = findAllDigimonsUseCase.execute().associateBy { it.id }
         val path: MutableList<Int> = mutableListOf(source)
         val skillPath: MutableList<Int> = mutableListOf()
         val skillContext: MutableMap<Int, Boolean> = HashMap()
@@ -41,7 +44,7 @@ class EvolutionPathFinder {
             if (skillContext.isNotEmpty()) {
                 skillContext.keys.forEach { id ->
                     run {
-                        if (skillToDigis[id] != null || (skillToDigis[id]!![target] != null && skillToDigis[id]!![source] != null)) {
+                        if (attackToDigis[id] != null || (attackToDigis[id]!![target] != null && attackToDigis[id]!![source] != null)) {
                             skillPath.add(id)
                             skillContext[id] = true
                         }
@@ -57,9 +60,9 @@ class EvolutionPathFinder {
                         if (!coveredSkills.getOrDefault(elementPath)) {
                             val skillNodePath = findClosestSkillHolderPath(currentSource, elementPath, null, skillContext)
                             currentSource = skillNodePath[skillNodePath.size - 1]
-                            val moves = digimonData[currentSource]!!.attacks
+                            val moves = digimons[currentSource]!!.learnedAttacks
                             for (move in moves) {
-                                coveredSkills[move] = true
+                                coveredSkills[move.learnedAttack.id!!] = true
                             }
                             currentSkillPath = (currentSkillPath + skillNodePath.slice(0 until skillNodePath.size - 1)).toMutableList()
                         }
@@ -95,6 +98,7 @@ class EvolutionPathFinder {
     }
 
     private fun findRoute(path: List<Int?>, attack: Int?, wantedAttacks: Map<Int, Boolean>): MutableList<Int> {
+        val digimons: Map<Int, com.cybersleuth.planner.database.Digimon> = findAllDigimonsUseCase.execute().associateBy { it.id }
         val source = path[0]!!
         var target = path[1]
         val stack: Queue<Int> = LinkedList()
@@ -105,14 +109,14 @@ class EvolutionPathFinder {
         stack.add(source)
         while (stack.isNotEmpty() && !pathFound) {
             val current = stack.poll()
-            val neighbours: Set<Int> = digimonData[current]!!.prev + digimonData[current]!!.next
+            val neighbours: Set<Int> = setOf(digimons[current]!!.id) + digimons[current]!!.evolveFrom.map { it.id }.toSet().sortedBy { it } + digimons[current]!!.evolveTo.map { it.to.id }.toSet().sortedBy { it }
             var ctr = 0
             var attackCandidate = 0
             var attackCandidateRating = 0
             while (ctr < neighbours.size && !pathFound) {
                 val neighbourId = neighbours.elementAt(ctr)
                 if (!visited.getOrDefault(neighbourId) && neighbourId != current) {
-                    if (attack != null && skillToDigis[attack]!!.getOrDefault(neighbourId)) {
+                    if (attack != null && attackToDigis[attack]!!.getOrDefault(neighbourId)) {
                         var rating = 0
                         val attacks = digimonData[neighbourId]!!.attacks
 

@@ -6,6 +6,7 @@ import javax.persistence.Id
 import javax.persistence.JoinTable
 import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
+import javax.persistence.OrderBy
 
 @Entity
 class Digimon(
@@ -23,9 +24,11 @@ class Digimon(
         @OneToMany
         @JoinTable
         val evolveFrom: MutableSet<Digimon>,
-        @OneToMany(mappedBy = "id", cascade = [CascadeType.ALL])
+        @OneToMany(mappedBy = "from", cascade = [CascadeType.ALL])
+        @OrderBy("from")
         val evolveTo: MutableSet<Evolution>,
         @OneToMany(mappedBy = "learnedBy", cascade = [CascadeType.ALL])
+        @OrderBy("learnedAttack")
         val learnedAttacks: MutableSet<LearnAttack>
 ) {
 

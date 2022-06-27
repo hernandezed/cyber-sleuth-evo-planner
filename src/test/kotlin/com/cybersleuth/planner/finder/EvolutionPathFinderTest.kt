@@ -42,10 +42,10 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
         assertThat(result).hasSize(8)
         assertThat(result.map { digimonData[it]!!.name })
                 .containsExactlyElementsOf(mutableListOf("Kuramon",
-                        "Tsumemon",
-                        "Agumon (Blk)",
-                        "Growlmon",
-                        "WarGrowlmon",
+                        "Pagumon",
+                        "Gazimon",
+                        "Leomon",
+                        "MetalGreymon",
                         "Growlmon",
                         "Agumon (Blk)",
                         "Tsumemon"))
