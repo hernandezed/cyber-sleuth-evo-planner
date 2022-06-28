@@ -1,10 +1,12 @@
 package com.cybersleuth.planner.finder
 
 import com.cybersleuth.planner.CyberSleuthPlannerApplicationTests
+import com.cybersleuth.planner.database.repositories.DigimonRepository
 import com.cybersleuth.planner.finder.model.DigimonData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import javax.transaction.Transactional
 
 class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     @Autowired
@@ -12,6 +14,9 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
 
     @Autowired
     lateinit var digimonData: Map<Int, DigimonData>
+
+    @Autowired
+    lateinit var digimonRepository: DigimonRepository
 
 
     @Test
@@ -89,23 +94,23 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     }
 
     @Test
+    @Transactional
     fun findShortestPath_withMultipleAttacks_returnPathSize() {
         var source = 1
         var target = 300
-        val result = instance.findShortestPath(source, target, setOf(20, 50, 25, 10, 100, 40))
-        assertThat(result).hasSize(16)
+        val result = instance.findShortestPath(source, target, setOf(20, 49, 26, 10, 102, 40))
+        val ex = digimonRepository.findAll().filter { result.contains(it.id) }
+        assertThat(result).hasSize(14)
         assertThat(result.map { digimonData[it]!!.name })
                 .containsExactlyElementsOf(mutableListOf("Kuramon",
                         "Pagumon",
-                        "Chuumon",
-                        "Raremon",
-                        "Gabumon (Blk)",
-                        "Reppamon",
+                        "Lopmon",
+                        "Devimon",
+                        "Lucemon",
+                        "Angemon",
                         "Kudamon",
                         "Wanyamon",
                         "Gaomon",
-                        "Togemon",
-                        "Lalamon",
                         "Togemon",
                         "Palmon",
                         "Togemon",
