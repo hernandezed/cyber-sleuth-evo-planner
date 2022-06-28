@@ -1,9 +1,7 @@
 package com.cybersleuth.planner.finder
 
 import com.cybersleuth.planner.business.usecase.FindAllDigimonsUseCase
-import com.cybersleuth.planner.database.repositories.DigimonRepository
-import com.cybersleuth.planner.domain.Attack
-import com.cybersleuth.planner.domain.Digimon
+import com.cybersleuth.planner.business.usecase.FindAllGroupedByInheritableAttacksUseCase
 import com.cybersleuth.planner.finder.model.DigimonData
 import org.springframework.stereotype.Component
 import java.util.*
@@ -15,8 +13,9 @@ class EvolutionPathFinder {
     val digimonData: Map<Int, DigimonData>
     val attackToDigis: Map<Int, MutableMap<Int, Boolean>>
     val findAllDigimonsUseCase: FindAllDigimonsUseCase
+    val findAllGroupedByInheritableAttacksUseCase: FindAllGroupedByInheritableAttacksUseCase
 
-    constructor(digimonData: Map<Int, DigimonData>, findAllDigimonsUseCase: FindAllDigimonsUseCase) {
+    constructor(digimonData: Map<Int, DigimonData>, findAllDigimonsUseCase: FindAllDigimonsUseCase, findAllGroupedByInheritableAttacksUseCase: FindAllGroupedByInheritableAttacksUseCase) {
         this.digimonData = digimonData
         attackToDigis = HashMap()
         this.digimonData.values.forEach { d ->
@@ -30,6 +29,7 @@ class EvolutionPathFinder {
             }
         }
         this.findAllDigimonsUseCase = findAllDigimonsUseCase
+        this.findAllGroupedByInheritableAttacksUseCase = findAllGroupedByInheritableAttacksUseCase
     }
 
     @Transactional
@@ -44,7 +44,7 @@ class EvolutionPathFinder {
             if (skillContext.isNotEmpty()) {
                 skillContext.keys.forEach { id ->
                     run {
-                        if (attackToDigis[id] != null || (attackToDigis[id]!![target] != null && attackToDigis[id]!![source] != null)) {
+                        if (attackToDigis[id] != null) {
                             skillPath.add(id)
                             skillContext[id] = true
                         }
@@ -118,10 +118,10 @@ class EvolutionPathFinder {
                 if (!visited.getOrDefault(neighbourId) && neighbourId != current) {
                     if (attack != null && attackToDigis[attack]!!.getOrDefault(neighbourId)) {
                         var rating = 0
-                        val attacks = digimonData[neighbourId]!!.attacks
+                        val attacks = digimons[neighbourId]!!.learnedAttacks
 
                         for (k in attacks.indices) {
-                            if (wantedAttacks[attacks.elementAt(k)] != null) {
+                            if (wantedAttacks[attacks.elementAt(k).learnedAttack.id] != null) {
                                 rating++
                             }
                         }
@@ -148,7 +148,7 @@ class EvolutionPathFinder {
             visited[current] = true
         }
         if (pathToSource[target] == null) {
-            throw java.util.NoSuchElementException()
+            throw NoSuchElementException()
         }
         pathToSource[target]!!.add(target!!)
         return pathToSource[target]!!

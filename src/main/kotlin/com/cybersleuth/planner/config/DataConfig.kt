@@ -1,12 +1,5 @@
 package com.cybersleuth.planner.config
 
-import com.cybersleuth.planner.database.Evolution
-import com.cybersleuth.planner.database.LearnAttack
-import com.cybersleuth.planner.database.Requirements
-import com.cybersleuth.planner.database.Skill
-import com.cybersleuth.planner.database.repositories.AttackRepository
-import com.cybersleuth.planner.database.repositories.DigimonRepository
-import com.cybersleuth.planner.database.repositories.SkillRepository
 import com.cybersleuth.planner.domain.Attack
 import com.cybersleuth.planner.domain.Digimon
 import com.cybersleuth.planner.finder.model.DigimonData
@@ -17,29 +10,20 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.util.ResourceUtils
 
 @Configuration
-class DataConfig(objectMapper: ObjectMapper, attackRepository: AttackRepository, skillRepository: SkillRepository,
-                 digimonRepository: DigimonRepository) {
+class DataConfig(objectMapper: ObjectMapper) {
 
     init {
-        val digimonsJsonFile = String(ResourceUtils.getFile("classpath:db.json").readBytes())
-        val attacksJsonFile = String(ResourceUtils.getFile("classpath:attacks.json").readBytes())
-        val skillsJsonFile = String(ResourceUtils.getFile("classpath:skills.json").readBytes())
-        val attacks = objectMapper.readValue<Set<Attack>>(attacksJsonFile)
-        val digimons = objectMapper.readValue<Set<Digimon>>(digimonsJsonFile)
-        val skills = objectMapper.readValue<Set<Skill>>(skillsJsonFile)
-        val skillsByName = skillRepository.saveAll(skills).associateBy { it.name }
-        val digimonsByName = digimons.associateBy { it.name }
+        println()
+
+        //val attacksEntities = attackRepository.saveAll(attacks.map { com.cybersleuth.planner.database.Attack(it.id, it.name, null) }).associateBy { it.id }
 
 
-        val attacksEntities = attackRepository.saveAll(attacks.map { com.cybersleuth.planner.database.Attack(it.id, it.name, null) }).associateBy { it.id }
+        /* val digiEntities = digimonRepository.saveAll(digimons.map {
+             com.cybersleuth.planner.database.Digimon(it.id, it.name, it.portrait, it.mini, it.level, it.type,
+                     it.memory, it.slots, skillsByName[it.skill.name]!!, mutableSetOf(), mutableSetOf(), mutableSetOf())
+         }.toSet()).associateBy { it.name }*/
 
-
-        val digiEntities = digimonRepository.saveAll(digimons.map {
-            com.cybersleuth.planner.database.Digimon(it.id, it.name, it.portrait, it.mini, it.level, it.type,
-                    it.memory, it.slots, skillsByName[it.skill.name]!!, mutableSetOf(), mutableSetOf(), mutableSetOf())
-        }.toSet()).associateBy { it.name }
-
-        digiEntities.keys.forEach { it ->
+        /*digiEntities.keys.forEach { it ->
             var actualDigimonEntity = digiEntities[it]
             var actualDigimonData = digimonsByName[it]
             actualDigimonEntity!!.evolveTo.addAll(actualDigimonData!!.evolveTo.map {
@@ -54,7 +38,7 @@ class DataConfig(objectMapper: ObjectMapper, attackRepository: AttackRepository,
                 LearnAttack(null, actualDigimonEntity, attacksEntities[it.id]!!, it.level)
             })
         }
-        digimonRepository.saveAll(digiEntities.values)
+        digimonRepository.saveAll(digiEntities.values)*/
     }
 
     @Bean
@@ -87,7 +71,7 @@ class DataConfig(objectMapper: ObjectMapper, attackRepository: AttackRepository,
     }
 
     @Bean
-    fun attacksById(objectMapper: ObjectMapper, attackRepository: AttackRepository): Map<Int, Attack> {
+    fun attacksById(objectMapper: ObjectMapper): Map<Int, Attack> {
         val jsonFile = String(ResourceUtils.getFile("classpath:attacks.json").readBytes())
         val readValue = objectMapper.readValue<Set<Attack>>(jsonFile)
         return readValue.associateBy { it.id }
