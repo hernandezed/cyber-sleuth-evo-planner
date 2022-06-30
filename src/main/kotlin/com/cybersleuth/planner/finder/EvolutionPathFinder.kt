@@ -1,6 +1,5 @@
 package com.cybersleuth.planner.finder
 
-import com.cybersleuth.planner.business.bo.DigimonBo
 import com.cybersleuth.planner.business.bo.Digipedia
 import org.springframework.stereotype.Component
 import java.util.*
@@ -30,8 +29,8 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
                     }
                 }
                 val fullSkillPaths: MutableList<MutableList<Int>> = LinkedList<MutableList<Int>>()
-                val posiblePaths = permutations(skillPath)
-                for (posiblePath in posiblePaths) {
+
+                for (posiblePath in skillPath.permute()) {
                     var currentSource = source
                     var currentSkillPath = mutableListOf<Int>()
                     val coveredSkills = mutableMapOf<Int, Boolean>()
@@ -132,13 +131,14 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
         return pathToSource[target]!!
     }
 
-    private fun permutations(input: List<Int>): List<List<Int>> {
-        val solutions = mutableListOf<List<Int>>()
-        permutationsRecursive(input, 0, solutions)
+
+    fun List<Int>.permute(): Set<List<Int>> {
+        val solutions = mutableSetOf<List<Int>>()
+        permutationsRecursive(this, 0, solutions)
         return solutions
     }
 
-    private fun permutationsRecursive(input: List<Int>, index: Int, answers: MutableList<List<Int>>) {
+    private fun permutationsRecursive(input: List<Int>, index: Int, answers: MutableSet<List<Int>>) {
         if (index == input.lastIndex) answers.add(input.toList())
         for (i in index..input.lastIndex) {
             Collections.swap(input, index, i)
