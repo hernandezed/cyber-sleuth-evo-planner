@@ -8,5 +8,5 @@ import javax.persistence.Id
 data class Attack(@Id
                   val id: Int,
                   val name: String,
-                  var inheritable: Boolean?
+                  var inheritable: Boolean
 )

@@ -1,26 +1,17 @@
 package com.cybersleuth.planner.finder
 
-import com.cybersleuth.planner.business.usecase.FindAllDigimonsUseCase
-import com.cybersleuth.planner.business.usecase.FindAllGroupedByInheritableAttacksUseCase
-import com.cybersleuth.planner.database.Digimon
+import com.cybersleuth.planner.business.bo.DigimonBo
+import com.cybersleuth.planner.business.bo.Digipedia
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.transaction.Transactional
 import kotlin.collections.HashMap
 
 @Component
-class EvolutionPathFinder {
-    val attackToDigis: Map<Int, List<Digimon>>
-    val findAllDigimonsUseCase: FindAllDigimonsUseCase
-
-    constructor(findAllDigimonsUseCase: FindAllDigimonsUseCase, findAllGroupedByInheritableAttacksUseCase: FindAllGroupedByInheritableAttacksUseCase) {
-        this.findAllDigimonsUseCase = findAllDigimonsUseCase
-        attackToDigis = findAllGroupedByInheritableAttacksUseCase.execute()
-    }
+class EvolutionPathFinder(val digipedia: Digipedia) {
 
     @Transactional
     fun findShortestPath(source: Int, target: Int?, wantedAttacks: Set<Int>): List<Int> {
-        val digimons: Map<Int, Digimon> = findAllDigimonsUseCase.execute().associateBy { it.id }
         val path: MutableList<Int> = mutableListOf(source)
         val skillPath: MutableList<Int> = mutableListOf()
         val skillContext: MutableMap<Int, Boolean> = HashMap()
@@ -30,9 +21,11 @@ class EvolutionPathFinder {
             if (skillContext.isNotEmpty()) {
                 skillContext.keys.forEach { id ->
                     run {
-                        if (attackToDigis[id] != null) {
+                        if (digipedia.isInheritableAttack(id)) {
                             skillPath.add(id)
                             skillContext[id] = true
+                        } else {
+                            throw NoSuchElementException()
                         }
                     }
                 }
@@ -46,9 +39,9 @@ class EvolutionPathFinder {
                         if (!coveredSkills.getOrDefault(elementPath)) {
                             val skillNodePath = findClosestSkillHolderPath(currentSource, elementPath, skillContext)
                             currentSource = skillNodePath[skillNodePath.size - 1]
-                            val moves = digimons[currentSource]!!.learnedAttacks
+                            val moves = digipedia.getAttackBy(currentSource)
                             for (move in moves) {
-                                coveredSkills[move.learnedAttack.id] = true
+                                coveredSkills[move.attackId] = true
                             }
                             currentSkillPath = (currentSkillPath + skillNodePath.slice(0 until skillNodePath.size - 1)).toMutableList()
                         }
@@ -84,7 +77,6 @@ class EvolutionPathFinder {
     }
 
     private fun findRoute(path: List<Int?>, attack: Int?, wantedAttacks: Map<Int, Boolean>): MutableList<Int> {
-        val digimons: Map<Int, Digimon> = findAllDigimonsUseCase.execute().associateBy { it.id }
         val source = path[0]!!
         var target = path[1]
         val stack: Queue<Int> = LinkedList()
@@ -95,19 +87,19 @@ class EvolutionPathFinder {
         stack.add(source)
         while (stack.isNotEmpty() && !pathFound) {
             val current = stack.poll()
-            val neighbours: Set<Int> = setOf(digimons[current]!!.id) + digimons[current]!!.evolveFrom.map { it.id }.toSet().sortedBy { it } + digimons[current]!!.evolveTo.map { it.to.id }.toSet().sortedBy { it }
+            val neighbours: Set<Int> = digipedia.getNeighboursBy(current)
             var ctr = 0
             var attackCandidate = 0
             var attackCandidateRating = 0
             while (ctr < neighbours.size && !pathFound) {
                 val neighbourId = neighbours.elementAt(ctr)
                 if (!visited.getOrDefault(neighbourId) && neighbourId != current) {
-                    if (attack != null && attackToDigis[attack]!!.filter { it.id == neighbourId }.any()) {
+                    if (attack != null && digipedia.canLearn(neighbourId, attack)) {
                         var rating = 0
-                        val attacks = digimons[neighbourId]!!.learnedAttacks
+                        val attacks = digipedia.getAttackBy(neighbourId)
 
                         for (k in attacks.indices) {
-                            if (wantedAttacks[attacks.elementAt(k).learnedAttack.id] != null) {
+                            if (wantedAttacks[attacks.elementAt(k).attackId] != null) {
                                 rating++
                             }
                         }
