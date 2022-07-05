@@ -1,9 +1,6 @@
 package com.cybersleuth.planner.config
 
-import com.cybersleuth.planner.business.bo.AttackBo
-import com.cybersleuth.planner.business.bo.DigimonBo
-import com.cybersleuth.planner.business.bo.Digipedia
-import com.cybersleuth.planner.business.bo.LearnAttackBo
+import com.cybersleuth.planner.business.bo.*
 import com.cybersleuth.planner.database.Digimon
 import com.cybersleuth.planner.database.repositories.AttackRepository
 import com.cybersleuth.planner.database.repositories.DigimonRepository
@@ -19,11 +16,10 @@ class DataConfig {
     fun digimons(digimonRepository: DigimonRepository): Map<Int, DigimonBo> {
         return digimonRepository.findAll()
                 .map { digimon ->
-                    DigimonBo(digimon.id, digimon.evolveFrom.map { it.id }.toSet(), digimon.evolveTo.map { it.to.id }.toSet(),
-                            digimon.learnedAttacks.map { LearnAttackBo(it.learnedAttack.id, it.at) }.toSet())
-                }
-
-                .associateBy { it.id }
+                    DigimonBo(digimon.id, digimon.name, digimon.evolveFrom.map { it.id }.toSet(),
+                            digimon.evolveTo.map { EvolutionBo(it.to.id, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi)) }.toSet(),
+                            digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.inheritable), it.at) }.toSet())
+                }.associateBy { it.id }
     }
 
     @Transactional

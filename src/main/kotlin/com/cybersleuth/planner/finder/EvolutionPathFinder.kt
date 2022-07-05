@@ -1,57 +1,45 @@
 package com.cybersleuth.planner.finder
 
 import com.cybersleuth.planner.business.bo.Digipedia
+import kotlinx.coroutines.*
 import org.springframework.stereotype.Component
 import java.util.*
-import javax.transaction.Transactional
 import kotlin.collections.HashMap
 
 @Component
 class EvolutionPathFinder(val digipedia: Digipedia) {
 
-    @Transactional
     fun findShortestPath(source: Int, target: Int?, wantedAttacks: Set<Int>): List<Int> {
         val path: MutableList<Int> = mutableListOf(source)
-        val skillPath: MutableList<Int> = mutableListOf()
-        val skillContext: MutableMap<Int, Boolean> = HashMap()
-        wantedAttacks.associateWithTo(skillContext) { false }
         var shortestPath: MutableList<Int>
         try {
-            if (skillContext.isNotEmpty()) {
-                skillContext.keys.forEach { id ->
-                    run {
-                        if (digipedia.isInheritableAttack(id)) {
-                            skillPath.add(id)
-                            skillContext[id] = true
-                        } else {
-                            throw NoSuchElementException()
-                        }
-                    }
-                }
+            if (wantedAttacks.isNotEmpty()) {
                 val fullSkillPaths: MutableList<MutableList<Int>> = LinkedList<MutableList<Int>>()
 
-                for (posiblePath in skillPath.permute()) {
-                    var currentSource = source
-                    var currentSkillPath = mutableListOf<Int>()
-                    val coveredSkills = mutableMapOf<Int, Boolean>()
-                    for (elementPath in posiblePath) {
-                        if (!coveredSkills.getOrDefault(elementPath)) {
-                            val skillNodePath = findClosestSkillHolderPath(currentSource, elementPath, skillContext)
-                            currentSource = skillNodePath[skillNodePath.size - 1]
-                            val moves = digipedia.getAttackBy(currentSource)
-                            for (move in moves) {
-                                coveredSkills[move.attackId] = true
+                runBlocking {
+                    wantedAttacks.toMutableList().permute().map { posiblePath ->
+                        launch {
+                            var currentSource = source
+                            var currentSkillPath = mutableListOf<Int>()
+                            val covered: SortedSet<Int> = TreeSet()
+                            for (elementPath in posiblePath) {
+                                if (!covered.contains(elementPath)) {
+                                    val skillNodePath = findRoute(listOf(currentSource, null), elementPath, wantedAttacks)
+                                    currentSource = skillNodePath[skillNodePath.lastIndex]
+                                    covered.addAll(digipedia.getAttackBy(currentSource).map { it.attack.id })
+                                    currentSkillPath = (currentSkillPath + skillNodePath.slice(0 until skillNodePath.size - 1)).toMutableList()
+                                }
                             }
-                            currentSkillPath = (currentSkillPath + skillNodePath.slice(0 until skillNodePath.size - 1)).toMutableList()
+                            if (target != null) {
+                                currentSkillPath = (currentSkillPath + findRoute(listOf(currentSource, target), null, setOf())).toMutableList()
+                            } else {
+                                currentSkillPath.add(currentSource)
+                            }
+                            fullSkillPaths.add(currentSkillPath)
                         }
-                    }
-                    if (target != null) {
-                        currentSkillPath = (currentSkillPath + findRoute(listOf(currentSource, target), null, mapOf())).toMutableList()
-                    } else {
-                        currentSkillPath.add(currentSource)
-                    }
-                    fullSkillPaths.add(currentSkillPath)
+                    }.joinAll()
                 }
+
                 shortestPath = fullSkillPaths[0]
                 for (i in 1 until fullSkillPaths.size) {
                     if (shortestPath.size > fullSkillPaths[i].size) {
@@ -61,7 +49,7 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
             } else if (target != null) {
                 shortestPath = path
                 shortestPath.add(target)
-                shortestPath = findRoute(shortestPath, null, mapOf())
+                shortestPath = findRoute(shortestPath, null, setOf())
             } else {
                 shortestPath = mutableListOf()
             }
@@ -71,11 +59,7 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
         return shortestPath
     }
 
-    private fun findClosestSkillHolderPath(source: Int, skill: Int, skillContext: Map<Int, Boolean>): MutableList<Int> {
-        return findRoute(listOf(source, null), skill, skillContext)
-    }
-
-    private fun findRoute(path: List<Int?>, attack: Int?, wantedAttacks: Map<Int, Boolean>): MutableList<Int> {
+    private fun findRoute(path: List<Int?>, attack: Int?, wantedAttacks: Set<Int>): MutableList<Int> {
         val source = path[0]!!
         var target = path[1]
         val stack: Queue<Int> = LinkedList()
@@ -97,8 +81,8 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
                         var rating = 0
                         val attacks = digipedia.getAttackBy(neighbourId)
 
-                        for (k in attacks.indices) {
-                            if (wantedAttacks[attacks.elementAt(k).attackId] != null) {
+                        for (k in attacks) {
+                            if (wantedAttacks.contains(k.attack.id)) {
                                 rating++
                             }
                         }
@@ -131,7 +115,6 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
         return pathToSource[target]!!
     }
 
-
     fun List<Int>.permute(): Set<List<Int>> {
         val solutions = mutableSetOf<List<Int>>()
         permutationsRecursive(this, 0, solutions)
@@ -147,7 +130,6 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
         }
     }
 
-
     fun MutableMap<Int, Boolean>.getOrDefault(key: Int): Boolean {
         return if (this[key] != null) {
             this[key]!!
@@ -155,5 +137,4 @@ class EvolutionPathFinder(val digipedia: Digipedia) {
             false
         }
     }
-
 }

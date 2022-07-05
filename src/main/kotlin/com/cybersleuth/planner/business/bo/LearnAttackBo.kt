@@ -1,5 +1,7 @@
 package com.cybersleuth.planner.business.bo
 
-class LearnAttackBo(val attackId: Int, val at: Int) {
+import com.cybersleuth.planner.database.Attack
+
+data class LearnAttackBo(val attack: AttackBo, val at: Int) {
 
 }
