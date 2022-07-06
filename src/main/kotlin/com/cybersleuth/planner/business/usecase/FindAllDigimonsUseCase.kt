@@ -1,7 +1,7 @@
 package com.cybersleuth.planner.business.usecase
 
-import com.cybersleuth.planner.database.Digimon
+import com.cybersleuth.planner.business.bo.DigimonBo
 
 interface FindAllDigimonsUseCase {
-    fun execute(): Set<Digimon>
+    fun execute(): Set<DigimonBo>
 }

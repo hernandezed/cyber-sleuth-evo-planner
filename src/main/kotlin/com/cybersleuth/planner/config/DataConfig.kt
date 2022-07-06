@@ -4,6 +4,7 @@ import com.cybersleuth.planner.business.bo.*
 import com.cybersleuth.planner.database.Digimon
 import com.cybersleuth.planner.database.repositories.AttackRepository
 import com.cybersleuth.planner.database.repositories.DigimonRepository
+import com.cybersleuth.planner.ports.DigimonPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import javax.transaction.Transactional
@@ -13,13 +14,8 @@ class DataConfig {
 
     @Transactional
     @Bean
-    fun digimons(digimonRepository: DigimonRepository): Map<Int, DigimonBo> {
-        return digimonRepository.findAll()
-                .map { digimon ->
-                    DigimonBo(digimon.id, digimon.name, digimon.evolveFrom.map { it.id }.toSet(),
-                            digimon.evolveTo.map { EvolutionBo(it.to.id, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi)) }.toSet(),
-                            digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.inheritable), it.at) }.toSet())
-                }.associateBy { it.id }
+    fun digimons(digimonPort: DigimonPort): Map<Int, DigimonBo> {
+        return digimonPort.findAll().associateBy { it.id }
     }
 
     @Transactional

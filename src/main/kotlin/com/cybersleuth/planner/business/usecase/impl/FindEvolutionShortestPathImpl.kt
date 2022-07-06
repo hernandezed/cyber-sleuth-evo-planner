@@ -1,7 +1,6 @@
 package com.cybersleuth.planner.business.usecase.impl
 
 import com.cybersleuth.planner.business.bo.DigimonBo
-import com.cybersleuth.planner.business.bo.Digipedia
 import com.cybersleuth.planner.business.bo.PathBo
 import com.cybersleuth.planner.business.usecase.FindEvolutionShortestPath
 import com.cybersleuth.planner.finder.EvolutionPathFinder
@@ -40,7 +39,7 @@ class FindEvolutionShortestPathImpl(val pathFinder: EvolutionPathFinder,
 
     private fun evolveLevel(source: DigimonBo, target: DigimonBo?): Int {
         return if (target == null) 0
-        else if (source.evolveFromIds.contains(target.id)) 0
+        else if (source.evolveFrom.any { it.id==target.id }) 0
         else
             source.evolutions.first { it.to == target.id }.requirements.level!!
     }

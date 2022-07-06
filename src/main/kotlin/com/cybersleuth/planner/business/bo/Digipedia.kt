@@ -1,8 +1,5 @@
 package com.cybersleuth.planner.business.bo
 
-import com.cybersleuth.planner.database.Attack
-import java.util.SortedSet
-
 
 data class Digipedia(val digimons: Map<Int, DigimonBo>, val attacks: Map<Int, AttackBo>) {
 
@@ -19,7 +16,7 @@ data class Digipedia(val digimons: Map<Int, DigimonBo>, val attacks: Map<Int, At
     }
 
     fun getNeighboursBy(digimonId: Int): Set<Int> {
-        return setOf(digimons[digimonId]!!.id) + digimons[digimonId]!!.evolveFromIds.sortedBy { it } + digimons[digimonId]!!.evolutions.map { it.to }.sortedBy { it }
+        return setOf(digimons[digimonId]!!.id) + digimons[digimonId]!!.evolveFrom.map { it.id }.sortedBy { it } + digimons[digimonId]!!.evolutions.map { it.to }.sortedBy { it }
     }
 
 }
