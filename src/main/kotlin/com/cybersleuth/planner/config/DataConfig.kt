@@ -1,9 +1,7 @@
 package com.cybersleuth.planner.config
 
 import com.cybersleuth.planner.business.bo.*
-import com.cybersleuth.planner.database.Digimon
 import com.cybersleuth.planner.database.repositories.AttackRepository
-import com.cybersleuth.planner.database.repositories.DigimonRepository
 import com.cybersleuth.planner.ports.DigimonPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

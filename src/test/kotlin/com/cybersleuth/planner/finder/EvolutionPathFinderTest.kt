@@ -2,11 +2,19 @@ package com.cybersleuth.planner.finder
 
 import com.cybersleuth.planner.CyberSleuthPlannerApplicationTests
 import com.cybersleuth.planner.database.repositories.DigimonRepository
-import com.cybersleuth.planner.finder.model.DigimonData
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import java.awt.Image
+import java.io.BufferedInputStream
+import java.io.File
+import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import javax.imageio.ImageIO
 import javax.transaction.Transactional
+
 
 class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     @Autowired
@@ -15,6 +23,21 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
     @Autowired
     lateinit var digimonRepository: DigimonRepository
 
+    /*  @Test
+      fun a() {
+          val digimons = digimonRepository.findAll()
+
+          digimons.forEach {
+              val inMini = BufferedInputStream(URL(it.mini).openStream())
+              val inPort = BufferedInputStream(URL(it.portrait).openStream())
+              if (Files.copy(inMini, Paths.get("/Users/a309880/Downloads/cyber-sleuth-planner/src/test/resources/minis/" + it.id + ".png"), StandardCopyOption.REPLACE_EXISTING) == 0L) {
+                  println("mini: " + it.id)
+              }
+                  if (Files.copy(inPort, Paths.get("/Users/a309880/Downloads/cyber-sleuth-planner/src/test/resources/portraits/" + it.id + ".png"), StandardCopyOption.REPLACE_EXISTING) == 0L) {
+                  println("port: " + it.id)
+              }
+          }
+      }*/
 
     @Test
     fun findShortestPath_directEvolutionWithoutAttacks_returnPathWithSizeTwo() {
@@ -77,8 +100,8 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
         var target = null
         val result = instance.findShortestPath(source, target, setOf(20))
         assertThat(result).hasSize(5)
-       /* assertThat(result.map { digimonData[it]!!.name })
-                .containsExactlyElementsOf(mutableListOf("Kuramon", "Pagumon", "Lopmon", "MudFrigimon", "Palmon"))*/
+        /* assertThat(result.map { digimonData[it]!!.name })
+                 .containsExactlyElementsOf(mutableListOf("Kuramon", "Pagumon", "Lopmon", "MudFrigimon", "Palmon"))*/
     }
 
 
@@ -98,21 +121,21 @@ class EvolutionPathFinderTest : CyberSleuthPlannerApplicationTests() {
         val result = instance.findShortestPath(source, target, setOf(20, 49, 26, 10, 102, 40))
         val ex = digimonRepository.findAll().filter { result.contains(it.id) }
         assertThat(result).hasSize(14)
-       /* assertThat(result.map { digimonData[it]!!.name })
-                .containsExactlyElementsOf(mutableListOf("Kuramon",
-                        "Pagumon",
-                        "Lopmon",
-                        "Devimon",
-                        "Lucemon",
-                        "Angemon",
-                        "Kudamon",
-                        "Wanyamon",
-                        "Gaomon",
-                        "Togemon",
-                        "Palmon",
-                        "Togemon",
-                        "MachGaogamon",
-                        "Merukimon"))*/
+        /* assertThat(result.map { digimonData[it]!!.name })
+                 .containsExactlyElementsOf(mutableListOf("Kuramon",
+                         "Pagumon",
+                         "Lopmon",
+                         "Devimon",
+                         "Lucemon",
+                         "Angemon",
+                         "Kudamon",
+                         "Wanyamon",
+                         "Gaomon",
+                         "Togemon",
+                         "Palmon",
+                         "Togemon",
+                         "MachGaogamon",
+                         "Merukimon"))*/
     }
 
     @Test

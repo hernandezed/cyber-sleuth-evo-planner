@@ -10,15 +10,4 @@ import kotlin.collections.HashSet
 
 @SpringBootTest
 abstract class CyberSleuthPlannerApplicationTests {
-    /*@Test
-    fun a() {
-        var a = e.findShortestPath(1, 21, mutableMapOf(Pair(6, false), Pair(120, false)))
-        a.forEach {
-            run {
-                println(digimonData[it]!!.name)
-            }
-        }
-    }
-*/
-
 }

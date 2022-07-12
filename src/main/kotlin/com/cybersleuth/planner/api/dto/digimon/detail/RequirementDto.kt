@@ -1,4 +1,4 @@
-package com.cybersleuth.planner.api.dto.detail
+package com.cybersleuth.planner.api.dto.digimon.detail
 
 class RequirementDto(
         val level: Int? = null,

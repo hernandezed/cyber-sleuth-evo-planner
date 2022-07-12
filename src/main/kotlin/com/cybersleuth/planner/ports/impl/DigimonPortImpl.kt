@@ -18,6 +18,10 @@ class DigimonPortImpl(val digimonRepository: DigimonRepository, val digimonMappe
         return digimonRepository.findAllById(ids).map { digimonMapper.map(it) }.toSet()
     }
 
+    override fun findById(id: Int): DigimonBo {
+        return digimonRepository.findById(id).map { digimonMapper.map(it) }.orElseThrow()
+    }
+
     override fun findAll(): Set<DigimonBo> {
         return digimonRepository.findAll(Sort.by(Sort.Order.asc("id"))).map { digimonMapper.map(it) }.toSet()
     }
@@ -26,6 +30,6 @@ class DigimonPortImpl(val digimonRepository: DigimonRepository, val digimonMappe
 @Component
 class DigimonMapper {
     fun map(digimon: Digimon): DigimonBo {
-        return DigimonBo(digimon.id, digimon.name, digimon.mini, digimon.portrait, digimon.stage, digimon.type, digimon.memory, digimon.slots, digimon.evolveFrom.map { DegenerationBo(it.id, it.name, it.mini) }.toSet(), digimon.evolveTo.map { EvolutionBo(it.to.id, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi, it.requirements.dna)) }.toSet(), digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.inheritable), it.at) }.toSet())
+        return DigimonBo(digimon.id, digimon.name, digimon.hp, digimon.sp, digimon.attack, digimon.defense, digimon.intellect, digimon.speed, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots, digimon.evolveFrom.map { DegenerationBo(it.id, it.name) }.toSet(), digimon.evolveTo.map { EvolutionBo(it.to.id, it.to.name, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi, it.requirements.dna)) }.toSet(), digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.inheritable), it.at) }.toSet())
     }
 }

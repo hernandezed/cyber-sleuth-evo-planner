@@ -13,12 +13,17 @@ class Digimon(
         @Id
         val id: Int,
         val name: String,
-        val portrait: String,
-        val mini: String,
         val stage: String,
         val type: String,
+        val attribute: String,
         val memory: Int,
         val slots: Int,
+        val hp: Int,
+        val sp: Int,
+        val attack: Int,
+        val defense: Int,
+        val intellect: Int,
+        val speed: Int,
         @ManyToOne
         val skill: Skill,
         @OneToMany
@@ -33,6 +38,6 @@ class Digimon(
 ) {
 
     override fun toString(): String {
-        return "Digimon(id=$id, name='$name', portrait='$portrait', mini='$mini', stage='$stage', type='$type', memory=$memory, slots=$slots, skill=$skill, evolveFrom=${evolveFrom.map { it.id }}, evolveTo=${evolveTo.map { it.to.id }})"
+        return "Digimon(id=$id, name='$name', stage='$stage', type='$type', attribute='$attribute', memory=$memory, slots=$slots, hp=$hp, sp=$sp, attack=$attack, defense=$defense, intellect=$intellect, speed=$speed, skill=$skill, evolveFrom=$evolveFrom, evolveTo=$evolveTo, learnedAttacks=$learnedAttacks)"
     }
 }
