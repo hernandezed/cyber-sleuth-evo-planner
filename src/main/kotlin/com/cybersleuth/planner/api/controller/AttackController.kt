@@ -30,6 +30,6 @@ class AttackController(val findAllAttacksUseCase: FindAllAttacksUseCase, val att
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Int): AttackDetailDto {
         val attack = attackByIdUseCase.execute(id)
-        return AttackDetailDto(attack.id, attack.name, attack.inheritable)
+        return AttackDetailDto(attack.id, attack.name, attack.attribute, attack.type, attack.cost, attack.power, attack.inheritable)
     }
 }

@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component
 class FindAllAttacksUseCaseImpl(val attackRepository: AttackRepository) : FindAllAttacksUseCase {
     override fun execute(): Set<AttackBo> {
         return attackRepository.findAll()
-                .map { AttackBo(it.id, it.name, it.inheritable) }.toSet()
+                .map { AttackBo(it.id, it.name, it.attribute, it.type, it.cost, it.power, it.inheritable) }.toSet()
     }
 }

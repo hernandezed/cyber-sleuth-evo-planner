@@ -2,12 +2,6 @@ package com.cybersleuth.planner.api.dto.digimon.detail
 
 open class DigimonDetailDto(id: Int,
                             name: String,
-                            val hp: Int,
-                            val sp: Int,
-                            val attack: Int,
-                            val defense: Int,
-                            val intellect: Int,
-                            val speed: Int,
                             val stage: String,
                             val type: String,
                             val attribute: String,
@@ -15,6 +9,7 @@ open class DigimonDetailDto(id: Int,
                             val slots: Int,
                             val evolveFrom: Set<DegenerationDetailDto>,
                             val evolutions: Set<EvolutionDetailDto>,
-                            val learnAttacks: Set<LearnedAttackDetailDto>) : MinimalDigimonDetailDto(id, name) {
+                            val learnAttacks: Set<LearnedAttackDetailDto>,
+                            val stats: Map<Int, StatsDetailsDto>) : MinimalDigimonDetailDto(id, name) {
 }
 

@@ -19,7 +19,7 @@ class DataConfig {
     @Transactional
     @Bean
     fun attacks(attackRepository: AttackRepository): Map<Int, AttackBo> {
-        return attackRepository.findAll().map { AttackBo(it.id, it.name, it.inheritable) }
+        return attackRepository.findAll().map { AttackBo(it.id, it.name, it.attribute, it.type, it.cost, it.power, it.inheritable) }
                 .associateBy { it.id }
     }
 

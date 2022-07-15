@@ -30,6 +30,10 @@ class DigimonPortImpl(val digimonRepository: DigimonRepository, val digimonMappe
 @Component
 class DigimonMapper {
     fun map(digimon: Digimon): DigimonBo {
-        return DigimonBo(digimon.id, digimon.name, digimon.hp, digimon.sp, digimon.attack, digimon.defense, digimon.intellect, digimon.speed, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots, digimon.evolveFrom.map { DegenerationBo(it.id, it.name) }.toSet(), digimon.evolveTo.map { EvolutionBo(it.to.id, it.to.name, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi, it.requirements.dna)) }.toSet(), digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.inheritable), it.at) }.toSet())
+        return DigimonBo(digimon.id, digimon.name, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots, digimon.evolveFrom.map { DegenerationBo(it.id, it.name) }.toSet(), digimon.evolveTo.map { EvolutionBo(it.to.id, it.to.name, RequirementBo(it.requirements.level, it.requirements.hp, it.requirements.sp, it.requirements.atk, it.requirements.def, it.requirements.int, it.requirements.spd, it.requirements.cam, it.requirements.abi, it.requirements.dna)) }.toSet(), digimon.learnedAttacks.map { LearnAttackBo(AttackBo(it.learnedAttack.id, it.learnedAttack.name, it.learnedAttack.attribute, it.learnedAttack.type, it.learnedAttack.cost, it.learnedAttack.power, it.learnedAttack.inheritable), it.at) }.toSet(),
+                digimon.stats.associateBy { it.level }.mapValues {
+                    StatsBo(it.value.id, it.value.hp, it.value.sp,
+                            it.value.attack, it.value.defense, it.value.intellect, it.value.speed)
+                })
     }
 }

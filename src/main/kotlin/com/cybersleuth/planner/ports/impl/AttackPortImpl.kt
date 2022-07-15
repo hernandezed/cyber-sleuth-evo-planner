@@ -13,7 +13,7 @@ class AttackPortImpl(val attackRepository: AttackRepository) : AttackPort {
                 .map { mapAttack(it) }.toSet()
     }
 
-    private fun mapAttack(it: Attack) = AttackBo(it.id, it.name, it.inheritable)
+    private fun mapAttack(it: Attack) = AttackBo(it.id, it.name, it.attribute, it.type, it.cost, it.power, it.inheritable)
 
     override fun findById(id: Int): AttackBo {
         return attackRepository.findById(id).map { mapAttack(it) }.orElseThrow()

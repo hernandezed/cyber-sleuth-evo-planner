@@ -41,17 +41,23 @@ class DigimonController(val findEvolutionShortestPath: FindEvolutionShortestPath
     @CrossOrigin
     @GetMapping("/digimons")
     fun getAll(): Set<DigimonListItemDto> {
-        return findAllDigimonsUseCase.execute()
-                .map { DigimonListItemDto(it.id, it.name, it.hp, it.sp, it.attack, it.defense, it.intellect, it.speed, it.stage, it.type, it.attribute, it.memory, it.slots) }
+        val digimons = findAllDigimonsUseCase.execute()
+
+        return digimons
+                .map { it ->
+                    val stats = it.stats[1]!!
+                    DigimonListItemDto(it.id, it.name, stats.hp, stats.sp, stats.attack, stats.defense, stats.intellect, stats.speed, it.stage, it.type, it.attribute, it.memory, it.slots)
+                }
                 .toSet()
     }
 
     @GetMapping("/digimons/{id}")
     fun getById(@PathVariable id: Int): DigimonDetailDto {
         val digimon: DigimonBo = digimonByIdUseCase.execute(id)
-        return DigimonDetailDto(digimon.id, digimon.name, digimon.hp, digimon.sp, digimon.attack, digimon.defense, digimon.intellect, digimon.speed, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots,
+        return DigimonDetailDto(digimon.id, digimon.name, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots,
                 digimon.evolveFrom.map { DegenerationDetailDto(it.id, it.name) }.toSet(),
                 digimon.evolutions.map { EvolutionDetailDto(it.to, it.name, RequirementDto(it.requirements.level)) }.toSet(),
-                digimon.learnAttacks.map { LearnedAttackDetailDto(AttackDetailDto(it.attack.id, it.attack.name, it.attack.inheritable), it.at) }.toSet())
+                digimon.learnAttacks.map { LearnedAttackDetailDto(AttackDetailDto(it.attack.id, it.attack.name, it.attack.attribute, it.attack.type, it.attack.cost, it.attack.power, it.attack.inheritable), it.at) }.toSet(),
+                digimon.stats.mapValues { StatsDetailsDto(it.value.hp, it.value.sp, it.value.attack, it.value.defense, it.value.intellect, it.value.speed) })
     }
 }
