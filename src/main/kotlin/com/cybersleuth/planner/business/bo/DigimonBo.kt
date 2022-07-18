@@ -2,6 +2,7 @@ package com.cybersleuth.planner.business.bo
 
 data class DigimonBo(val id: Int,
                      val name: String,
+                     val skill: SkillBo,
                      val stage: String,
                      val type: String,
                      val attribute: String,

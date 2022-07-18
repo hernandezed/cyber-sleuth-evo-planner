@@ -2,6 +2,7 @@ package com.cybersleuth.planner.api.dto.digimon.detail
 
 open class DigimonDetailDto(id: Int,
                             name: String,
+                            val skill: SkillDto,
                             val stage: String,
                             val type: String,
                             val attribute: String,

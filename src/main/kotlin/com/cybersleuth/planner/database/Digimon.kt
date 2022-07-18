@@ -27,7 +27,7 @@ class Digimon(
         @OrderBy("from")
         val evolveTo: MutableSet<Evolution>,
         @OneToMany(mappedBy = "learnedBy", cascade = [CascadeType.ALL])
-        @OrderBy("learnedAttack")
+        @OrderBy("at asc")
         val learnedAttacks: MutableSet<LearnAttack>,
         @OneToMany(mappedBy = "digimon")
         val stats: MutableSet<DigimonStats>

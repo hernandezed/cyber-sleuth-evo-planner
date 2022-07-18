@@ -51,10 +51,11 @@ class DigimonController(val findEvolutionShortestPath: FindEvolutionShortestPath
                 .toSet()
     }
 
+    @CrossOrigin
     @GetMapping("/digimons/{id}")
     fun getById(@PathVariable id: Int): DigimonDetailDto {
         val digimon: DigimonBo = digimonByIdUseCase.execute(id)
-        return DigimonDetailDto(digimon.id, digimon.name, digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots,
+        return DigimonDetailDto(digimon.id, digimon.name, SkillDto(digimon.skill.name, digimon.skill.description), digimon.stage, digimon.type, digimon.attribute, digimon.memory, digimon.slots,
                 digimon.evolveFrom.map { DegenerationDetailDto(it.id, it.name) }.toSet(),
                 digimon.evolutions.map { EvolutionDetailDto(it.to, it.name, RequirementDto(it.requirements.level)) }.toSet(),
                 digimon.learnAttacks.map { LearnedAttackDetailDto(AttackDetailDto(it.attack.id, it.attack.name, it.attack.attribute, it.attack.type, it.attack.cost, it.attack.power, it.attack.inheritable), it.at) }.toSet(),
