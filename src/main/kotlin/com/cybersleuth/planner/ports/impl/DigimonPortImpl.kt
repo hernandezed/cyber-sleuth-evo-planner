@@ -25,6 +25,11 @@ class DigimonPortImpl(val digimonRepository: DigimonRepository, val digimonMappe
     override fun findAll(): Set<DigimonBo> {
         return digimonRepository.findAll(Sort.by(Sort.Order.asc("id"))).map { digimonMapper.map(it) }.toSet()
     }
+
+    override fun findAllByAttackId(attackId: Int): Set<DigimonBo> {
+        return digimonRepository.findAllByLearnedAttacksLearnedAttackId(attackId)
+                .map { digimonMapper.map(it) }.toSet()
+    }
 }
 
 @Component

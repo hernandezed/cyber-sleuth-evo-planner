@@ -15,5 +15,10 @@ class FindAllDigimonsUseCaseImpl(val digimonPort: DigimonPort) : FindAllDigimons
 
     @Cacheable("digimons")
     @Transactional
-    override fun execute(): Set<DigimonBo> = digimonPort.findAll()
+    override fun execute(attackId: Int?): Set<DigimonBo> {
+        return if (attackId == null)
+            digimonPort.findAll()
+        else
+            digimonPort.findAllByAttackId(attackId)
+    }
 }

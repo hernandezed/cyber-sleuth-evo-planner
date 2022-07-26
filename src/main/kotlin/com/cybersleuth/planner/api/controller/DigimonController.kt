@@ -40,15 +40,14 @@ class DigimonController(val findEvolutionShortestPath: FindEvolutionShortestPath
 
     @CrossOrigin
     @GetMapping("/digimons")
-    fun getAll(): Set<DigimonListItemDto> {
-        val digimons = findAllDigimonsUseCase.execute()
+    fun getAll(@RequestParam(required = false) attackId: Int?): Set<DigimonListItemDto> {
+        val digimons = findAllDigimonsUseCase.execute(attackId)
 
         return digimons
-                .map { it ->
+                .map {
                     val stats = it.stats[1]!!
                     DigimonListItemDto(it.id, it.name, stats.hp, stats.sp, stats.attack, stats.defense, stats.intellect, stats.speed, it.stage, it.type, it.attribute, it.memory, it.slots)
-                }
-                .toSet()
+                }.toSet()
     }
 
     @CrossOrigin
@@ -61,4 +60,6 @@ class DigimonController(val findEvolutionShortestPath: FindEvolutionShortestPath
                 digimon.learnAttacks.map { LearnedAttackDetailDto(AttackDetailDto(it.attack.id, it.attack.name, it.attack.attribute, it.attack.type, it.attack.cost, it.attack.power, it.attack.inheritable), it.at) }.toSet(),
                 digimon.stats.mapValues { StatsDetailsDto(it.value.hp, it.value.sp, it.value.attack, it.value.defense, it.value.intellect, it.value.speed) })
     }
+
+
 }

@@ -7,4 +7,5 @@ interface DigimonPort {
     fun findByIds(ids: Set<Int>): Set<DigimonBo>
     fun findById(id: Int): DigimonBo
     fun findAll(): Set<DigimonBo>
+    fun findAllByAttackId(attackId: Int): Set<DigimonBo>
 }
